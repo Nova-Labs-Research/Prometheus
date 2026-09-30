@@ -48,6 +48,7 @@ prom-lab audit tail
 prom-lab audit tail --last 20
 prom-lab audit summary
 prom-lab audit by-proposal <proposal_id>
+prom-lab audit verify
 ```
 
 Replace `<proposal_id>` with the UUID printed by `run-dummy-loop` or `audit tail`.
@@ -69,6 +70,29 @@ reports zero entries in the summary. Malformed records or read errors produce
 an error and exit code 1; entries are never silently skipped or rewritten.
 Inspection does not create or modify logs. Approval and execution remain
 research-only simulations; the sandbox is not a security boundary.
+
+`audit verify` checks the recorded simulation contract, gate/digest consistency,
+and complete event sequences. It reports incomplete and contradictory evidence
+without repair. New logs include the actual file/content limits; legacy logs
+without that snapshot remain readable but cannot receive a completion verdict.
+Verification is **not evidence authentication or proof of observed effects**.
+Exit codes are `0` for consistent completed/rejected/denied runs, `2` for missing,
+empty, failed, incomplete or invalid evidence, and `1` for read/parse errors.
+See [Phase 1 evidence contract](docs/PHASE1_EVIDENCE.md) for the test matrix,
+aggregate verdict semantics, and remaining limits.
+
+## Code-only approval and durable simulation evidence
+
+The separate `lab_control` API provides strict mock approval/manifest contracts,
+an in-memory simulation ledger, and an opt-in SQLite durable simulation journal.
+Durable reservations prevent replay across supported reopen paths; incomplete
+operations require explicit abandonment and keep consumed IDs. Every Phase 2A
+result remains non-authorizing with no valid execution completion. The VM boundary
+unconditionally refuses all operations, and no new execution CLI is exposed.
+See [code contracts](docs/PHASE2A_CODE_CONTRACT.md),
+[durability and crash recovery](docs/DURABLE_SIMULATION.md), and the
+[PROPOSED VM design](docs/PHASE2A_VM_PLAN_PROPOSED.md). Persistence is not evidence
+authenticity, malicious rollback resistance or proof of power-loss durability.
 
 ## Versioning
 
@@ -110,6 +134,7 @@ src/prometheus_lab/
   constraints/    Path scope, duplicate paths, payload limits, check runner
   audit/          Event schema and local append-only JSONL API
   sandbox/        Simulated executor and result model
+  lab_control/    Mock authority contracts and durable simulation journal; VM unavailable
   ui/             Typer CLI with Rich output
 experiments/target_repo/  Tiny toy codebase
 docs/                    Architecture and safety notes

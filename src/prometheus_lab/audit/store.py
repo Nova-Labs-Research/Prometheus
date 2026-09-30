@@ -1,7 +1,21 @@
+import json
 import os
 from pathlib import Path
 
 from prometheus_lab.audit.models import AuditEvent
+
+
+def _reject_nonfinite(value: str) -> None:
+    raise ValueError(f"Nonstandard JSON constant: {value}")
+
+
+def _unique_object(pairs: list[tuple[str, object]]) -> dict:
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError(f"Duplicate JSON key: {key}")
+        result[key] = value
+    return result
 
 
 class JsonlAuditStore:
@@ -16,7 +30,9 @@ class JsonlAuditStore:
         with self.path.open("r", encoding="utf-8") as stream:
             for line_number, line in enumerate(stream, start=1):
                 try:
-                    entries.append(AuditEvent.model_validate_json(line))
+                    # Reject ambiguous JSON before validation can discard duplicate keys.
+                    json.loads(line, object_pairs_hook=_unique_object, parse_constant=_reject_nonfinite)
+                    entries.append(AuditEvent.model_validate_json(line, strict=True))
                 except ValueError as exc:
                     raise ValueError(
                         f"Invalid audit entry at line {line_number}; log left unchanged."
