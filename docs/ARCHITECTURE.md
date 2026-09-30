@@ -11,7 +11,8 @@ it improves anything.
 
 ## Flow and events
 
-1. `loop_started`: new run UUID, research-only and simulation markers.
+1. `loop_started`: new run UUID, research-only and simulation markers, the
+   `simulation-v1` evidence contract, and actual file/content limit snapshot.
 2. `proposal_generated`: full `CodeChangeProposal` plus SHA-256 digest.
 3. `constraints_checked`: all constraint results, including failures.
 4. `approval_decided`: simulated decision, rationale, and proposal digest.
@@ -26,6 +27,17 @@ the CLI, which exits with code 1. If the store itself fails, recording that
 failure is only best effort. A missing terminal event is an incomplete run,
 not evidence of success. The CLI's final audit-location message is output, not
 an additional event.
+
+The initial append is inside this failure handler. Reporting occurs before each
+normal terminal append, so a reporting exception does not leave an earlier
+success terminal. After any append error only best-effort failure recording is
+attempted; no subsequent workflow stage runs. An append that persists before
+raising may leave contradictory terminal records; verification rejects them.
+
+`audit verify` checks recorded simulation consistency without writing or running
+candidate content. It distinguishes complete simulation, rejection, denial,
+failure, incomplete evidence and invalid evidence. It does not authenticate the
+writer or prove effects. See [Phase 1 contract](PHASE1_EVIDENCE.md).
 
 ## Modules and contracts
 
@@ -74,6 +86,20 @@ The current audit store supports one trusted local writer. Concurrent writers,
 partial-write recovery, authenticity, tamper evidence, retention and replication
 require additional design. Completion is recorded only after the result append
 succeeds; a logging failure stops progression to subsequent stages.
+
+## Separate code-only Phase 2A contract
+
+`lab_control` does not change the dummy-loop executor or Phase 1 JSONL semantics.
+Its mock approval/schema validation cannot authenticate a human. The SQLite
+`DurableLedger` commits reservations before a separate terminal, serializes local
+writers, rejects replay across reopen, and explicitly abandons incomplete attempts
+without releasing their IDs. Fresh session epochs fence reopened/stale handles;
+monotonic clocks are not reused across sessions. Every result is non-authorizing
+and the VM boundary always refuses. See [durability assumptions and recovery](DURABLE_SIMULATION.md).
+
+This separate journal does not upgrade the single-writer JSONL store to concurrent
+or tamper-resistant storage. Neither format establishes independent provenance,
+real isolation, malicious rollback resistance or research improvement.
 
 ## Dependency references
 

@@ -14,6 +14,7 @@ from prometheus_lab.agent_core.approval import simulate_approval
 from prometheus_lab.agent_core.loop import run_dummy_loop as run_loop
 from prometheus_lab.audit.models import AuditEvent as AuditEntry
 from prometheus_lab.audit.store import JsonlAuditStore as AuditStore
+from prometheus_lab.audit.verify import verify_audit
 from prometheus_lab.config.settings import Settings, load_settings
 
 
@@ -154,6 +155,22 @@ def audit_by_proposal(proposal_id: str) -> None:
             title=Text(entry.event_type),
             subtitle=Text(f"proposal_id: {proposal_id}"),
         ))
+
+
+@audit_app.command("verify")
+def audit_verify() -> None:
+    """Check simulation evidence consistency; never authenticate evidence."""
+    console.print("Simulation consistency only. Evidence authenticity and actual effects are UNVERIFIED.")
+    entries = _read_audit_entries()
+    if not entries:
+        console.print("No runs to verify; no valid completion.")
+        raise typer.Exit(code=2)
+    verification = verify_audit(entries)
+    for run in verification.runs:
+        console.print(f"{run.run_id}: {run.status.upper()} - {run.detail}", markup=False)
+    console.print(f"All runs completed simulation: {'yes' if verification.valid_completion else 'no'}")
+    if not verification.consistent:
+        raise typer.Exit(code=2)
 
 
 if __name__ == "__main__":
