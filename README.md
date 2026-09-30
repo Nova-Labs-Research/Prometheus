@@ -94,6 +94,17 @@ See [code contracts](docs/PHASE2A_CODE_CONTRACT.md),
 [PROPOSED VM design](docs/PHASE2A_VM_PLAN_PROPOSED.md). Persistence is not evidence
 authenticity, malicious rollback resistance or proof of power-loss durability.
 
+The [code-only controller rehearsal](docs/CONTROLLER_REHEARSAL.md) adds strict
+mock readiness gates, bounded JSON request parsing and durable admission/readback
+checks. It cannot start a VM. Preflight receipts are unpersisted and readiness
+claims unauthenticated; all results remain non-authorizing. The document lists
+separate proposed activation decisions for real authority, services and evidence.
+
+The opt-in [durable controller journal](docs/CONTROLLER_JOURNAL.md) stores complete
+preflight rejection or unresolved effect intent in a separate version 2 database.
+Test-only observations and explicit head-bound abandonment preserve uncertainty;
+no state authorizes execution or asserts actual VM completion.
+
 ## Versioning
 
 This project uses Semantic Versioning (`MAJOR.MINOR.PATCH`), starting at `0.1.0`.
