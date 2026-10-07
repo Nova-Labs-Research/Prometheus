@@ -42,9 +42,12 @@ audit output there. This is output isolation, not a security sandbox.
 ## Branches and reviews
 
 `main` is the protected integration branch. Create feature branches from an
-up-to-date `main`, and submit pull requests targeting `main`. Require one human
-approval and all four `test (Python X.Y)` checks before merging. New commits
-dismiss stale approvals; branches must be current with `main`.
+up-to-date `main`, and submit pull requests targeting `main`. All four
+`test (Python X.Y)` checks must pass before merging, and branches must be current
+with `main`. GitHub does not allow authors to approve their own PRs. With one
+maintainer, the rule requires zero approving reviews. Before merging, inspect the
+diff and CI, record the decision and unresolved limits in the PR, and stop on
+findings that need more work. This is self-review, not independent human review.
 
 Include the problem, resulting behavior, tests run, and any known limitations in
 the PR description. Keep changes scoped. Do not commit local audit logs,
@@ -88,10 +91,10 @@ artifacts and publish release notes separately if needed.
 
 ## GitHub branch protection
 
-In Settings -> Branches, add a classic branch protection rule for `main`.
-Require a pull request, at least one approval, dismissal of stale approvals,
-status checks, and an up-to-date branch. Select these check names after CI has
-run at least once:
+In Settings -> Branches, use the classic branch protection rule for `main`.
+Require a pull request, status checks and an up-to-date branch. Set required
+approving reviews to **zero** while only one maintainer can review. Keep stale
+approval dismissal enabled for any voluntary reviews. Select these check names:
 
 - `test (Python 3.10)`
 - `test (Python 3.11)`
@@ -99,5 +102,9 @@ run at least once:
 - `test (Python 3.13)`
 
 Apply the rule to administrators too; keep force pushes and branch deletion
-disabled. Protection is a GitHub setting, not enforced by these Markdown files.
+disabled. If an independent reviewer with write access becomes available, a
+separate governance decision can raise the required approval count to one.
+Protection is a GitHub setting, not enforced by these Markdown files. A solo PR
+decision does not grant approval for real execution, VM operations, or research
+promotion; those remain separate human authority decisions.
 See [GitHub's branch protection instructions](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/managing-a-branch-protection-rule).
