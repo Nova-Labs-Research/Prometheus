@@ -105,6 +105,12 @@ preflight rejection or unresolved effect intent in a separate version 2 database
 Test-only observations and explicit head-bound abandonment preserve uncertainty;
 no state authorizes execution or asserts actual VM completion.
 
+The [observation/recovery rehearsal](docs/OBSERVATION_REHEARSAL.md) adds complete
+mock context-consent bindings, explicitly test-only report classes, a pure recovery
+reducer and a separate version 3 temporary-store journal. Contradictory or incomplete
+evidence remains unresolved; all results are non-authorizing. Actual VM state stays
+unknown and real operations/authentication remain unavailable.
+
 ## Versioning
 
 This project uses Semantic Versioning (`MAJOR.MINOR.PATCH`), starting at `0.1.0`.
