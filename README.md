@@ -130,10 +130,13 @@ runs tests and a CLI smoke check on Ubuntu with Python 3.10, 3.11, 3.12, and
 3.13 for pushes to `main` and pull requests targeting `main`. The smoke check
 uses a temporary working directory so audit output stays outside the checkout.
 
-`main` is protected: changes go through pull requests with a human approval and
-green CI on all four Python versions. Branch protection is configured in GitHub
-settings. See [Contributing](CONTRIBUTING.md) for local setup, review expectations,
-and branch protection instructions.
+`main` is protected: changes go through pull requests with green CI on all four
+Python versions. As a sole maintainer, the author cannot approve their own PR;
+the repository requires zero approving reviews. Before merging, the maintainer inspects
+the diff and records their decision and remaining limits in the PR. This is a
+documented self-review, not independent human review or approval for real AI/VM
+operations. See [Contributing](CONTRIBUTING.md) for the review process and branch
+protection settings.
 
 ## Layout
 
